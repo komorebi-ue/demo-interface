@@ -16,7 +16,7 @@ class EmployeeApi:
     def __init__(self, client: RestClient, base_url: str):
         self.client = client
         self.base_url = base_url.rstrip("/") + "/"
-        self._employees_url = self.base_url + "web/index.php/api/v2/pim/employees"
+        self._employees_path = "/web/index.php/api/v2/pim/employees"
 
     @property
     def _default_headers(self) -> dict[str, str]:
@@ -33,7 +33,7 @@ class EmployeeApi:
 
         resp = self.client.request(
             "POST",
-            self._employees_url,
+            self._employees_path,
             json=payload,
             headers=self._default_headers,
         )
@@ -43,7 +43,7 @@ class EmployeeApi:
     def get_employee_list(self, *, limit: int = 50, offset: int = 0, model: str = "default") -> dict[str, Any]:
         resp = self.client.request(
             "GET",
-            self._employees_url,
+            self._employees_path,
             params={"limit": limit, "offset": offset, "model": model},
             headers=self._default_headers,
         )
@@ -56,7 +56,7 @@ class EmployeeApi:
         """
         resp = self.client.request(
             "DELETE",
-            self._employees_url,
+            self._employees_path,
             json={"ids": [emp_number]},
             headers=self._default_headers,
         )

@@ -7,6 +7,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from utils.assertions import assert_employee_create_response
+from utils.assertions import assert_has_keys
 
 def _load_employee_data() -> dict:
     p = Path(__file__).parent.parent / "data" / "employee_data.yaml"
@@ -29,10 +31,8 @@ def created_employee(employee_api):
     employee_id = "".join(random.choices(string.digits, k=6))
 
     resp = employee_api.add_employee(first_name=first_name, last_name=last_name, emp_id=employee_id)
-    emp_number = (resp.get("data") or {}).get("empNumber")
-
-    if not emp_number:
-        raise AssertionError(f"Add employee succeeded but empNumber missing: {resp}")
+    assert_has_keys(resp, ["data"])
+    emp_number = assert_employee_create_response(resp)
 
     yield {
         "emp_number": int(emp_number),
@@ -44,6 +44,8 @@ def created_employee(employee_api):
     employee_api.delete_employee(int(emp_number))
 
 
+@pytest.mark.smoke
+@pytest.mark.pim
 def test_employee_add_list_delete(employee_api, created_employee):
     created = created_employee
 
