@@ -1,0 +1,12 @@
+employees:
+  first_names:
+    - "Auto"
+    - "Test"
+    - "QA"
+    - "Py"
+  last_names:
+    - "Employee"
+    - "Orange"
+    - "HRM"
+    - "Robot"
+

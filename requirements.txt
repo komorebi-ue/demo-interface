@@ -1,0 +1,6 @@
+pytest
+playwright
+requests
+allure-pytest
+pyyaml
+loguru
