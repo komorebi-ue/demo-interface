@@ -1,8 +1,8 @@
-# OrangeHRM Interface Automation
+# OrangeHRM 接口自动化
 
-Python + Pytest + Playwright + Requests based API automation project for OrangeHRM demo site.
+基于 Python 的 OrangeHRM 演示环境接口自动化：pytest 组织用例，Playwright 完成浏览器登录并获取 Cookie，requests 发起后续 API 调用。
 
-## Tech Stack
+## 依赖
 
 - Python
 - pytest
@@ -12,90 +12,93 @@ Python + Pytest + Playwright + Requests based API automation project for OrangeH
 - pyyaml
 - loguru
 
-## Project Structure
+## 项目结构
 
 ```text
-OrangeHRM-interface/
-├── common/                  # logger and requests client wrapper
-├── config/                  # environment config
-├── data/                    # test data yaml/json
-├── pages/                   # API object encapsulation
-├── tests/                   # test cases
-├── logs/                    # runtime logs
-├── conftest.py              # global fixtures (login + api session)
-├── pytest.ini               # pytest config
-├── requirements.txt         # dependencies
+demo-interface/
+├── common/           # 日志、HTTP 客户端封装
+├── config/           # 多环境配置
+├── data/             # 测试数据（YAML 等）
+├── pages/            # 接口层封装
+├── tests/            # 测试用例
+├── logs/             # 运行日志
+├── conftest.py       # 全局 fixture（登录、会话等）
+├── pytest.ini
+├── requirements.txt
 └── README.md
 ```
 
-## Environment Setup
+## 环境准备
 
-Use PowerShell under project root:
+在项目根目录使用 PowerShell：
 
 ```powershell
-# 1. Create virtual environment (skip if already exists)
+# 1. 创建虚拟环境（已存在可跳过）
 python -m venv .venv
 
-# 2. Activate
+# 2. 激活虚拟环境
 .\.venv\Scripts\Activate.ps1
 
-# 3. Install dependencies
+# 3. 安装依赖
 pip install -r .\requirements.txt
 
-# 4. Install Playwright browser
+# 4. 安装 Playwright Chromium
 playwright install chromium
 ```
 
-## Configuration
+若激活脚本被策略拦截：
 
-Config files:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+亦可不激活环境，直接使用 `.venv\Scripts\python.exe` 执行下文中的 pytest 命令。
+
+## 配置
+
+配置文件：
 
 - `config/config.dev.yaml`
 - `config/config.test.yaml`
-- `config/config.yaml` (fallback if env-specific file does not exist)
+- `config/config.yaml`（环境专用文件缺项时的回退）
 
-Set values in your target environment file:
+在对应环境中填写：
 
-- `base_url`: OrangeHRM URL
-- `username`: login user
-- `password`: login password
+- `base_url`：站点根地址
+- `username` / `password`：登录凭据
 
-## Run Tests
+## 运行测试
 
 ```powershell
-# Run all tests
+# 全部用例
 .\.venv\Scripts\python.exe -m pytest -s
 
-# Run against test env config
+# 指定 test 环境配置
 .\.venv\Scripts\python.exe -m pytest -s --env=test
 
-# Run employee management test only
+# 指定文件
 .\.venv\Scripts\python.exe -m pytest -q tests/test_employee_management.py -s
 
-# Run by markers
+# 按 marker
 .\.venv\Scripts\python.exe -m pytest -s -m smoke
 .\.venv\Scripts\python.exe -m pytest -s -m pim
 ```
 
-## Allure Report
+## Allure 报告
 
-`pytest.ini` already includes `--alluredir=./allure-results`.
+`pytest.ini` 已配置 `--alluredir=./allure-results`。需本机安装 [Allure CLI](https://github.com/allure-framework/allure2/releases) 后执行：
 
 ```powershell
-# Generate and open report (requires allure cli)
 allure serve .\allure-results
 ```
 
-## Logging
+## 日志
 
-- Console output: enabled by loguru
-- File output: `logs/test.log`
+- 控制台：loguru 输出
+- 文件：`logs/test.log`
 
-## Current Business Flow
+## 业务流程概要
 
-- Login with Playwright headless mode and extract browser cookies
-- Inject cookies into `requests.Session`
-- Add employee
-- Verify employee appears in employee list
-- Delete created employee in fixture teardown (cleanup guaranteed)
-
+1. Playwright 无头登录，提取浏览器 Cookie  
+2. 将 Cookie 注入 `requests.Session`，后续请求携带会话  
+3. 覆盖新增员工、列表校验；fixture teardown 中删除测试数据，保证清理  
